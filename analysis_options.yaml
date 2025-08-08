@@ -1,0 +1,133 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+  errors:
+    # Treat missing required parameters as a warning (not a hint)
+    missing_required_param: warning
+    # Treat missing returns as a warning (not a hint)
+    missing_return: warning
+    # Allow having TODOs in the code
+    todo: ignore
+    # Allow having print statements in the code
+    avoid_print: ignore
+    # Allow having unused imports in the code
+    unused_import: ignore
+    # Allow having unused variables in the code
+    unused_local_variable: ignore
+    # Allow having unused parameters in the code
+    unused_element: ignore
+    # Allow having deprecated members in the code
+    deprecated_member_use: ignore
+    # Allow having unnecessary type annotations in the code
+    omit_local_variable_types: ignore
+    # Allow having unnecessary type annotations in the code
+    always_specify_types: ignore
+    # Allow having unnecessary type annotations in the code
+    avoid_annotating_with_dynamic: ignore
+    # Allow having unnecessary type annotations in the code
+    avoid_equals_and_hash_code_on_mutable_classes: ignore
+    # Allow having unnecessary type annotations in the code
+    use_setters_to_change_properties: ignore
+    # Allow having unnecessary type annotations in the code
+    cast_nullable_to_non_nullable: ignore
+    # Allow having unnecessary type annotations in the code
+    library_private_types_in_public_api: ignore
+    # Allow having unnecessary type annotations in the code
+    avoid_multiple_declarations_per_line: ignore
+    # Allow having unnecessary type annotations in the code
+    sort_constructors_first: ignore
+    # Allow having unnecessary type annotations in the code
+    always_put_control_body_on_new_line: ignore
+    # Allow having unnecessary type annotations in the code
+    cascade_invocations: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_expression_function_bodies: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_const_declarations: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_const_constructors: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_const_literals_to_create_immutables: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_contains: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_final_fields: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_final_locals: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_initializing_formals: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_is_empty: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_is_not_empty: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_single_quotes: ignore
+    # Allow having unnecessary type annotations in the code
+    throw_in_finally: ignore
+    # Allow having unnecessary type annotations in the code
+    type_init_formals: ignore
+    # Allow having unnecessary type annotations in the code
+    unnecessary_new: ignore
+    # Allow having unnecessary type annotations in the code
+    unnecessary_this: ignore
+    # Allow having unnecessary type annotations in the code
+    use_key_in_widget_constructors: ignore
+    # Allow having unnecessary type annotations in the code
+    sized_box_for_whitespace: ignore
+    # Allow having unnecessary type annotations in the code
+    directives_ordering: ignore
+    # Allow having unnecessary type annotations in the code
+    unnecessary_library_name: ignore
+    # Allow having unnecessary type annotations in the code
+    always_put_required_named_parameters_first: ignore
+    # Allow having unnecessary type annotations in the code
+    avoid_redundant_argument_values: ignore
+    # Allow having unnecessary type annotations in the code
+    prefer_int_literals: ignore
+    # Allow having unnecessary type annotations in the code
+    lines_longer_than_80_chars: ignore
+
+linter:
+  rules:
+    # Error rules
+    - always_declare_return_types
+    - avoid_empty_else
+    - avoid_relative_lib_imports
+    - avoid_returning_null_for_void
+    - avoid_shadowing_type_parameters
+    - avoid_types_as_parameter_names
+    - camel_case_extensions
+    - curly_braces_in_flow_control_structures
+    - empty_catches
+    - empty_constructor_bodies
+    - library_names
+    - library_prefixes
+    - no_duplicate_case_values
+    - null_closures
+    - prefer_adjacent_string_concatenation
+    - prefer_collection_literals
+    - prefer_conditional_assignment
+    - prefer_contains
+    # prefer_equal_for_default_values was removed in Dart 3.0.0
+    - prefer_final_in_for_each
+    - prefer_for_elements_to_map_fromIterable
+    - prefer_generic_function_type_aliases
+    - prefer_if_null_operators
+    - prefer_iterable_whereType
+    - prefer_single_quotes
+    - prefer_spread_collections
+    - recursive_getters
+    - slash_for_doc_comments
+    - type_init_formals
+    - unawaited_futures
+    - unnecessary_const
+    - unnecessary_getters_setters
+    - unnecessary_new
+    - unnecessary_null_aware_assignments
+    - unnecessary_statements
+    - unrelated_type_equality_checks
+    - use_rethrow_when_possible
+    - valid_regexps
