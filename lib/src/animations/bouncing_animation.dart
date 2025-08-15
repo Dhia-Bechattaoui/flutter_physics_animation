@@ -13,6 +13,9 @@ class BouncingAnimation {
   /// Number of bounces before stopping
   final int maxBounces;
 
+  /// Ground level for bouncing (y-coordinate)
+  final double groundLevel;
+
   /// Current number of bounces
   int _currentBounces = 0;
 
@@ -28,6 +31,7 @@ class BouncingAnimation {
     required this.object,
     this.bounceHeight = 100.0,
     this.maxBounces = 5,
+    this.groundLevel = 0.0,
   }) {
     _initialX = object.x;
     _initialY = object.y;
@@ -72,11 +76,10 @@ class BouncingAnimation {
     // Update object physics
     object.update(dt);
 
-    // Check for ground collision (assuming ground is at y = 0 or container bottom)
-    final groundY = 0.0; // This should be configurable
-    if (object.bottom >= groundY && object.vy > 0) {
+    // Check for ground collision using configurable ground level
+    if (object.bottom >= groundLevel && object.vy > 0) {
       // Bounce off ground
-      object.y = groundY - object.height;
+      object.y = groundLevel - object.height;
       object.vy = -object.vy * object.elasticity;
       _currentBounces++;
 

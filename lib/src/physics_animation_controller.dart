@@ -146,11 +146,13 @@ class PhysicsAnimationController extends ChangeNotifier {
     required PhysicsObject object,
     double bounceHeight = 100.0,
     int maxBounces = 5,
+    double groundLevel = 0.0,
   }) {
     final animation = BouncingAnimation(
       object: object,
       bounceHeight: bounceHeight,
       maxBounces: maxBounces,
+      groundLevel: groundLevel,
     );
     _animations.add(animation);
     return animation;

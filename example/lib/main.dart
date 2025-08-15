@@ -113,6 +113,7 @@ class _PhysicsAnimationDemoState extends State<PhysicsAnimationDemo> {
       object: ball,
       bounceHeight: 150.0,
       maxBounces: 10,
+      groundLevel: 600.0, // Use the bottom boundary as ground level
     );
   }
 
@@ -133,6 +134,7 @@ class _PhysicsAnimationDemoState extends State<PhysicsAnimationDemo> {
         object: ball,
         bounceHeight: 100.0 + i * 15.0,
         maxBounces: 5,
+        groundLevel: 600.0, // Use the bottom boundary as ground level
       );
     }
   }
@@ -249,6 +251,7 @@ class _PhysicsAnimationDemoState extends State<PhysicsAnimationDemo> {
             object: object,
             bounceHeight: 80.0 + random.nextDouble() * 100.0,
             maxBounces: 3 + random.nextInt(5),
+            groundLevel: 600.0, // Use the bottom boundary as ground level
           );
           break;
         case 1:

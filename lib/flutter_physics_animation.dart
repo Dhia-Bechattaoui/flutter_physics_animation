@@ -1,3 +1,30 @@
+/// A Flutter package providing physics-based animations with realistic bouncing, gravity, and collision detection.
+///
+/// This package offers a comprehensive physics animation system that includes:
+/// - Realistic physics calculations with gravity, friction, and air resistance
+/// - Collision detection and resolution between objects
+/// - Bouncing animations with customizable elasticity
+/// - Spring physics for elastic animations
+/// - Seamless integration with Flutter's widget system
+/// - High performance optimized for smooth 60 FPS animations
+/// - Cross-platform support for iOS, Android, Web, and Desktop
+///
+/// ## Getting Started
+///
+/// ```dart
+/// import 'package:flutter_physics_animation/flutter_physics_animation.dart';
+///
+/// // Create a physics world
+/// final world = PhysicsWorld(gravity: 9.81);
+///
+/// // Add physics objects
+/// final ball = PhysicsObject(x: 100, y: 50, mass: 1.0);
+/// world.addObject(ball);
+///
+/// // Create animations
+/// final controller = PhysicsAnimationController(world: world);
+/// controller.addBouncingAnimation(object: ball, bounceHeight: 100.0);
+/// ```
 library flutter_physics_animation;
 
 // Core physics classes
