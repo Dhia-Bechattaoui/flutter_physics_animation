@@ -60,10 +60,12 @@ class PhysicsAnimationController extends ChangeNotifier {
     if (_isRunning) return;
 
     _isRunning = true;
-    _timer = Timer.periodic(Duration(milliseconds: (1000 / frameRate).round()),
-        (timer) {
-      _update();
-    });
+    _timer = Timer.periodic(
+      Duration(milliseconds: (1000 / frameRate).round()),
+      (timer) {
+        _update();
+      },
+    );
 
     notifyListeners();
   }
@@ -96,10 +98,12 @@ class PhysicsAnimationController extends ChangeNotifier {
 
     _isRunning = true;
     world.resume();
-    _timer = Timer.periodic(Duration(milliseconds: (1000 / frameRate).round()),
-        (timer) {
-      _update();
-    });
+    _timer = Timer.periodic(
+      Duration(milliseconds: (1000 / frameRate).round()),
+      (timer) {
+        _update();
+      },
+    );
 
     notifyListeners();
   }

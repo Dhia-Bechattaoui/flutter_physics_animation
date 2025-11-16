@@ -1,43 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_physics_animation/flutter_physics_animation.dart';
-import 'dart:math' as math;
 
 void main() {
-  runApp(PhysicsAnimationApp());
+  runApp(SimplePhysicsDemo());
 }
 
-class PhysicsAnimationApp extends StatelessWidget {
+class SimplePhysicsDemo extends StatelessWidget {
+  const SimplePhysicsDemo({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Physics Animation',
+      title: 'Simple Physics Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: PhysicsAnimationDemo(),
+      home: SimplePhysicsScreen(),
     );
   }
 }
 
-class PhysicsAnimationDemo extends StatefulWidget {
+class SimplePhysicsScreen extends StatefulWidget {
+  const SimplePhysicsScreen({super.key});
+
   @override
-  _PhysicsAnimationDemoState createState() => _PhysicsAnimationDemoState();
+  SimplePhysicsScreenState createState() => SimplePhysicsScreenState();
 }
 
-class _PhysicsAnimationDemoState extends State<PhysicsAnimationDemo> {
+class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
   late PhysicsWorld world;
   late PhysicsAnimationController controller;
-  int currentExample = 0;
-
-  final List<String> examples = [
-    'Bouncing Ball',
-    'Multiple Balls',
-    'Spring Chain',
-    'Gravity Well',
-    'Collision Demo',
-    'Mixed Physics',
-  ];
+  PhysicsObject? ball1;
+  PhysicsObject? ball2;
+  bool gravityEnabled = true;
+  final GlobalKey _containerKey = GlobalKey();
+  PhysicsObject? _dragging;
+  final List<Offset> _recentPositions = <Offset>[];
+  final List<int> _recentTimesMs = <int>[];
 
   @override
   void initState() {
@@ -46,327 +45,387 @@ class _PhysicsAnimationDemoState extends State<PhysicsAnimationDemo> {
   }
 
   void _setupPhysics() {
+    // Create physics world with provisional bounds (updated from layout at build)
     world = PhysicsWorld(
-      gravity: 9.81,
+      gravity: gravityEnabled ? 500 : 0, // Toggle between 500 and 0
       leftBound: 0,
       rightBound: 400,
-      topBound: 0,
-      bottomBound: 600,
-      onBoundaryCollision: (object, boundary) {
-        print('Object hit $boundary boundary');
-      },
+      topBound: 0
     );
 
+    // Create animation controller
     controller = PhysicsAnimationController(
       world: world,
       frameRate: 60,
       onObjectsUpdated: (objects) {
-        // Optional: Handle object updates
-      },
-      onAnimationComplete: (animation) {
-        print('Animation completed');
+        setState(() {
+          // Trigger rebuild when objects update
+        });
       },
     );
+
+    _createObjects();
+    controller.start();
   }
 
-  void _loadExample(int index) {
-    setState(() {
-      currentExample = index;
-      world.clear();
-      controller.clearAnimations();
-    });
+  void _createObjects() {
+    // Clear existing objects
+    world.clear();
 
-    switch (index) {
-      case 0:
-        _createBouncingBall();
-        break;
-      case 1:
-        _createMultipleBalls();
-        break;
-      case 2:
-        _createSpringChain();
-        break;
-      case 3:
-        _createGravityWell();
-        break;
-      case 4:
-        _createCollisionDemo();
-        break;
-      case 5:
-        _createMixedPhysics();
-        break;
-    }
-  }
-
-  void _createBouncingBall() {
-    final ball = PhysicsObject(
-      x: 200,
-      y: 50,
+    // Create ball 1 - starts from top-left, moving right and down
+    ball1 = PhysicsObject(
+      x: 50,
+      y: 100,
       width: 40,
       height: 40,
       mass: 1.0,
       elasticity: 0.8,
+      friction: 0.3,
+      isActive: true,
+      affectedByGravity: gravityEnabled,
+      shape: ShapeType.circle,
+      airDensity: PhysicsConstants.defaultAirDensity,
     );
+    // Set initial velocity: moving right and down
+    ball1!.setVelocity(150, 100);
+    world.addObject(ball1!);
 
-    world.addObject(ball);
-    controller.addBouncingAnimation(
-      object: ball,
-      bounceHeight: 150.0,
-      maxBounces: 10,
-      groundLevel: 600.0, // Use the bottom boundary as ground level
-    );
-  }
-
-  void _createMultipleBalls() {
-    for (int i = 0; i < 8; i++) {
-      final ball = PhysicsObject(
-        x: 50 + i * 40.0,
-        y: 50 + i * 20.0,
-        width: 25 + i * 2.0,
-        height: 25 + i * 2.0,
-        mass: 1.0 + i * 0.3,
-        elasticity: 0.7 + i * 0.05,
-        friction: 0.8,
-      );
-
-      world.addObject(ball);
-      controller.addBouncingAnimation(
-        object: ball,
-        bounceHeight: 100.0 + i * 15.0,
-        maxBounces: 5,
-        groundLevel: 600.0, // Use the bottom boundary as ground level
-      );
-    }
-  }
-
-  void _createSpringChain() {
-    final objects = <PhysicsObject>[];
-    final random = math.Random();
-
-    for (int i = 0; i < 6; i++) {
-      final object = PhysicsObject(
-        x: 50 + i * 60.0,
-        y: 100 + random.nextDouble() * 50.0,
-        width: 20.0,
-        height: 20.0,
-        mass: 1.0,
-        friction: 0.9,
-      );
-
-      objects.add(object);
-      world.addObject(object);
-    }
-
-    // Connect objects with springs
-    for (int i = 0; i < objects.length - 1; i++) {
-      controller.addSpringAnimation(
-        object: objects[i],
-        targetX: objects[i + 1].x,
-        targetY: objects[i + 1].y,
-        stiffness: 30.0,
-        damping: 8.0,
-      );
-    }
-
-    // Add gravity to make it more interesting
-    for (final object in objects) {
-      controller.addGravityAnimation(
-        object: object,
-        gravity: 5.0,
-        applyAirResistance: true,
-      );
-    }
-  }
-
-  void _createGravityWell() {
-    final ball = PhysicsObject(
-      x: 200,
-      y: 50,
-      width: 30,
-      height: 30,
+    // Create ball 2 - starts from top-right, moving left and down
+    ball2 = PhysicsObject(
+      x: 310,
+      y: 150,
+      width: 40,
+      height: 40,
       mass: 1.0,
-      friction: 0.95,
+      elasticity: 0.8,
+      friction: 0.3,
+      isActive: true,
+      affectedByGravity: gravityEnabled,
+      shape: ShapeType.circle,
+      airDensity: PhysicsConstants.defaultAirDensity,
     );
-
-    world.addObject(ball);
-
-    final gravityAnimation = controller.addGravityAnimation(
-      object: ball,
-      gravity: 0.0, // No default gravity
-      applyAirResistance: true,
-    );
-
-    // Apply gravity toward center
-    gravityAnimation.applyGravityTowardPoint(200.0, 300.0, 50.0);
+    // Set initial velocity: moving left and down
+    ball2!.setVelocity(-120, 80);
+    world.addObject(ball2!);
   }
 
-  void _createCollisionDemo() {
-    // Create balls that will collide
-    for (int i = 0; i < 5; i++) {
-      final ball = PhysicsObject(
-        x: 50 + i * 80.0,
-        y: 100 + i * 30.0,
-        width: 35.0,
-        height: 35.0,
-        mass: 1.0 + i * 0.5,
-        elasticity: 0.8,
-        friction: 0.9,
-      );
+  void _resetBalls() {
+    _createObjects();
+  }
 
-      world.addObject(ball);
+  void _toggleGravity(bool value) {
+    setState(() {
+      gravityEnabled = value;
+      world.gravity = value ? 500 : 0;
+      // Update gravity for all balls
+      if (ball1 != null) {
+        ball1!.affectedByGravity = value;
+        // Clear resting state when toggling gravity (so balls can move in zero gravity)
+        if (ball1!.isResting) {
+          ball1!.clearRestingState();
+        }
+      }
+      if (ball2 != null) {
+        ball2!.affectedByGravity = value;
+        // Clear resting state when toggling gravity (so balls can move in zero gravity)
+        if (ball2!.isResting) {
+          ball2!.clearRestingState();
+        }
+      }
+    });
+  }
 
-      // Add initial velocity
-      ball.setVelocity(50.0 + i * 10.0, -20.0 - i * 5.0);
+  void _startDrag(Offset local) {
+    _recentPositions.clear();
+    _recentTimesMs.clear();
 
-      controller.addGravityAnimation(
-        object: ball,
-        gravity: 15.0,
-        applyAirResistance: true,
-      );
+    // Hit-test balls (prefer top-most/nearest if overlapping)
+    final PhysicsObject? candidate = _hitTestBall(local);
+    if (candidate != null) {
+      setState(() {
+        _dragging = candidate;
+        _recordSample(local);
+        // Stop current motion while dragging
+        _dragging!.setVelocity(0, 0);
+        _dragging!.setAngularVelocity(0);
+        if (_dragging!.isResting) {
+          _dragging!.clearRestingState();
+        }
+      });
     }
   }
 
-  void _createMixedPhysics() {
-    final random = math.Random();
+  void _updateDrag(Offset local) {
+    if (_dragging == null) return;
+    _recordSample(local);
 
-    // Create various objects with different physics
-    for (int i = 0; i < 6; i++) {
-      final object = PhysicsObject(
-        x: 50 + i * 60.0,
-        y: 50 + random.nextDouble() * 100.0,
-        width: 25.0 + random.nextDouble() * 20.0,
-        height: 25.0 + random.nextDouble() * 20.0,
-        mass: 0.5 + random.nextDouble() * 2.0,
-        elasticity: 0.3 + random.nextDouble() * 0.6,
-        friction: 0.7 + random.nextDouble() * 0.3,
-      );
+    final PhysicsObject obj = _dragging!;
+    final double radiusX = obj.width / 2;
+    final double radiusY = obj.height / 2;
 
-      world.addObject(object);
+    // Keep center under finger, clamped to world bounds
+    double targetX = local.dx - radiusX;
+    double targetY = local.dy - radiusY;
 
-      // Randomly choose animation type
-      final animationType = random.nextInt(3);
-      switch (animationType) {
-        case 0:
-          controller.addBouncingAnimation(
-            object: object,
-            bounceHeight: 80.0 + random.nextDouble() * 100.0,
-            maxBounces: 3 + random.nextInt(5),
-            groundLevel: 600.0, // Use the bottom boundary as ground level
-          );
-          break;
-        case 1:
-          controller.addGravityAnimation(
-            object: object,
-            gravity: 8.0 + random.nextDouble() * 10.0,
-            applyAirResistance: true,
-          );
-          break;
-        case 2:
-          controller.addSpringAnimation(
-            object: object,
-            targetX: 200.0 + random.nextDouble() * 100.0,
-            targetY: 300.0 + random.nextDouble() * 100.0,
-            stiffness: 20.0 + random.nextDouble() * 80.0,
-            damping: 5.0 + random.nextDouble() * 15.0,
-          );
-          break;
+    final RenderBox? box = _containerKey.currentContext?.findRenderObject() as RenderBox?;
+    final double worldLeft = (world.leftBound is double) ? (world.leftBound as double) : 0.0;
+    final double worldTop = (world.topBound is double) ? (world.topBound as double) : 0.0;
+    final double worldRight = (world.rightBound is double)
+        ? (world.rightBound as double)
+        : (box?.size.width ?? double.infinity);
+    final double worldBottom = (world.bottomBound is double)
+        ? (world.bottomBound as double)
+        : (box?.size.height ?? double.infinity);
+
+    targetX = targetX.clamp(worldLeft, worldRight - obj.width);
+    targetY = targetY.clamp(worldTop, worldBottom - obj.height);
+
+    obj.setPosition(targetX, targetY);
+    obj.setVelocity(0, 0);
+    obj.setAngularVelocity(0);
+  }
+
+  void _endDrag({bool cancelled = false}) {
+    if (_dragging == null) return;
+    final PhysicsObject obj = _dragging!;
+
+    // Compute release velocity from recent samples
+    final Offset releaseVel = _computeReleaseVelocity();
+    if (!cancelled) {
+      obj.setVelocity(releaseVel.dx, releaseVel.dy);
+    }
+
+    _dragging = null;
+    _recentPositions.clear();
+    _recentTimesMs.clear();
+  }
+
+  PhysicsObject? _hitTestBall(Offset local) {
+    PhysicsObject? selected;
+    double bestDistSq = double.infinity;
+    for (final obj in [ball1, ball2]) {
+      if (obj == null) continue;
+      final double cx = obj.x + obj.width / 2;
+      final double cy = obj.y + obj.height / 2;
+      final double dx = local.dx - cx;
+      final double dy = local.dy - cy;
+      final double distSq = dx * dx + dy * dy;
+      final double r = obj.width / 2;
+      if (distSq <= r * r && distSq < bestDistSq) {
+        bestDistSq = distSq;
+        selected = obj;
       }
     }
+    return selected;
+  }
+
+  void _recordSample(Offset local) {
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    _recentPositions.add(local);
+    _recentTimesMs.add(now);
+    // Keep last ~6 samples
+    const int maxSamples = 6;
+    while (_recentPositions.length > maxSamples) {
+      _recentPositions.removeAt(0);
+      _recentTimesMs.removeAt(0);
+    }
+  }
+
+  Offset _computeReleaseVelocity() {
+    if (_recentPositions.length < 2) {
+      return Offset.zero;
+    }
+    // Weighted average velocity over last segments
+    double vxSum = 0;
+    double vySum = 0;
+    double wSum = 0;
+    for (int i = 1; i < _recentPositions.length; i++) {
+      final Offset p0 = _recentPositions[i - 1];
+      final Offset p1 = _recentPositions[i];
+      final int t0 = _recentTimesMs[i - 1];
+      final int t1 = _recentTimesMs[i];
+      final int dtMs = (t1 - t0).clamp(1, 1000);
+      final double dt = dtMs / 1000.0;
+      final double vx = (p1.dx - p0.dx) / dt;
+      final double vy = (p1.dy - p0.dy) / dt;
+      final double w = i.toDouble();
+      vxSum += vx * w;
+      vySum += vy * w;
+      wSum += w;
+    }
+    if (wSum == 0) return Offset.zero;
+    return Offset(vxSum / wSum, vySum / wSum);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Physics Animation Demo'),
+        title: Text('Two Balls Collision Demo'),
         actions: [
           IconButton(
-            icon: Icon(Icons.play_arrow),
-            onPressed: () => controller.start(),
-          ),
-          IconButton(
-            icon: Icon(Icons.pause),
-            onPressed: () => controller.pause(),
-          ),
-          IconButton(
-            icon: Icon(Icons.stop),
-            onPressed: () => controller.stop(),
+            icon: Icon(Icons.refresh),
+            onPressed: _resetBalls,
+            tooltip: 'Reset Balls',
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Example selector
-          Container(
-            height: 60,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: examples.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                  child: ElevatedButton(
-                    onPressed: () => _loadExample(index),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: currentExample == index
-                          ? Colors.blue
-                          : Colors.grey[300],
-                      foregroundColor:
-                          currentExample == index ? Colors.white : Colors.black,
+          // Physics container fills the space
+          Positioned.fill(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Update world bounds after layout
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final double newRight = constraints.maxWidth;
+                  final double newBottom = constraints.maxHeight;
+                  if (newRight.isFinite && newBottom.isFinite) {
+                    if (world.rightBound != newRight || world.bottomBound != newBottom) {
+                      world.leftBound = 0;
+                      world.topBound = 0;
+                      world.rightBound = newRight;
+                      world.bottomBound = newBottom;
+                    }
+                  }
+                });
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onPanStart: (details) {
+                    final RenderBox? box = _containerKey.currentContext?.findRenderObject() as RenderBox?;
+                    if (box == null) return;
+                    final Offset local = box.globalToLocal(details.globalPosition);
+                    _startDrag(local);
+                  },
+                  onPanUpdate: (details) {
+                    final RenderBox? box = _containerKey.currentContext?.findRenderObject() as RenderBox?;
+                    if (box == null) return;
+                    final Offset local = box.globalToLocal(details.globalPosition);
+                    _updateDrag(local);
+                  },
+                  onPanEnd: (details) {
+                    _endDrag();
+                  },
+                  onPanCancel: () {
+                    _endDrag(cancelled: true);
+                  },
+                  child: PhysicsContainer(
+                    key: _containerKey,
+                    world: world,
+                    controller: controller,
+                    objectBuilder: (context, object) {
+                      final isBall1 = object == ball1;
+                      final isBall2 = object == ball2;
+
+                      if (isBall1) {
+                        return Container(
+                          width: object.width,
+                          height: object.height,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: .3),
+                                blurRadius: 5,
+                                offset: Offset(2, 2),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else if (isBall2) {
+                        return Container(
+                          width: object.width,
+                          height: object.height,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: .3),
+                                blurRadius: 5,
+                                offset: Offset(2, 2),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        return Container(
+                          width: object.width,
+                          height: object.height,
+                          color: Colors.grey,
+                        );
+                      }
+                    },
+                    decoration: BoxDecoration(
+                      color: Colors.lightBlue[50],
+                      border: Border.all(color: Colors.grey[400]!),
                     ),
-                    child: Text(examples[index]),
+                    constraints: BoxConstraints.expand(),
+                    showDebugInfo: true,
+                    enableTouch: false,
                   ),
                 );
               },
             ),
           ),
-          // Physics container
-          Expanded(
-            child: PhysicsContainer(
-              world: world,
-              controller: controller,
-              objectBuilder: (context, object) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: _getObjectColor(object),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 5,
-                        offset: Offset(2, 2),
+          // Controls overlay at the top within safe area
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                margin: EdgeInsets.all(8),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: .85),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: .1),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SwitchListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      title: Text('Gravity'),
+                      subtitle: Text(gravityEnabled ? '500 m/s²' : '0 m/s² (Zero Gravity)'),
+                      value: gravityEnabled,
+                      onChanged: _toggleGravity,
+                    ),
+                    Divider(height: 8),
+                    if (ball1 != null) ...[
+                      Text(
+                        'Ball 1 (Blue):',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
                       ),
+                      Text('  Pos: (${ball1!.x.toStringAsFixed(1)}, ${ball1!.y.toStringAsFixed(1)})'),
+                      Text('  Vel: (${ball1!.vx.toStringAsFixed(2)}, ${ball1!.vy.toStringAsFixed(2)}) m/s'),
+                      Text('  Speed: ${ball1!.speed.toStringAsFixed(2)} m/s'),
+                      SizedBox(height: 6),
                     ],
-                  ),
-                );
-              },
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                border: Border.all(color: Colors.grey[400]!),
+                    if (ball2 != null) ...[
+                      Text(
+                        'Ball 2 (Red):',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
+                      ),
+                      Text('  Pos: (${ball2!.x.toStringAsFixed(1)}, ${ball2!.y.toStringAsFixed(1)})'),
+                      Text('  Vel: (${ball2!.vx.toStringAsFixed(2)}, ${ball2!.vy.toStringAsFixed(2)}) m/s'),
+                      Text('  Speed: ${ball2!.speed.toStringAsFixed(2)} m/s'),
+                    ],
+                  ],
+                ),
               ),
-              constraints: BoxConstraints.expand(),
-              showDebugInfo: true,
-              enableTouch: true,
-              onObjectTap: (object) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        'Tapped object at (${object.x.toStringAsFixed(1)}, ${object.y.toStringAsFixed(1)})'),
-                    duration: Duration(seconds: 1),
-                  ),
-                );
-              },
             ),
           ),
         ],
       ),
     );
-  }
-
-  Color _getObjectColor(PhysicsObject object) {
-    // Generate color based on object properties
-    final hue = (object.mass * 50 + object.elasticity * 100) % 360;
-    return HSLColor.fromAHSL(1.0, hue, 0.7, 0.6).toColor();
   }
 
   @override

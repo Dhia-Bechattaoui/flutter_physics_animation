@@ -41,14 +41,33 @@ void main() {
       expect(normalized[1], 0.0);
     });
 
-    test('should apply air resistance correctly', () {
-      final result = PhysicsUtils.applyAirResistance(10.0, 0.0, 0.02);
-      expect(result[0], lessThan(10.0));
+    test('should calculate air resistance force correctly', () {
+      // Test with proper formula: F_d = ½ × ρ × v² × C_d × A
+      // Using typical values: airDensity=1.225, dragCoefficient=0.47 (sphere), area=1.0
+      final result = PhysicsUtils.calculateAirResistanceForce(
+        10.0, 0.0, // velocity
+        1.225, // air density (kg/m³)
+        0.47, // drag coefficient
+        1.0, // cross-sectional area (m²)
+      );
+      // Force should be negative (opposing velocity) and less than velocity
+      expect(result[0], lessThan(0.0)); // Negative (opposing direction)
       expect(result[1], 0.0);
 
-      final result2 = PhysicsUtils.applyAirResistance(0.0, 0.0, 0.02);
+      // Test with zero velocity
+      final result2 = PhysicsUtils.calculateAirResistanceForce(
+        0.0, 0.0,
+        1.225,
+        0.47,
+        1.0,
+      );
       expect(result2[0], 0.0);
       expect(result2[1], 0.0);
+
+      // Test that force magnitude is correct
+      // F = 0.5 × 1.225 × 10² × 0.47 × 1.0 = 0.5 × 1.225 × 100 × 0.47 = 28.7875 N
+      final forceMagnitude = PhysicsUtils.magnitude(result[0], result[1]);
+      expect(forceMagnitude, closeTo(28.7875, 0.01));
     });
 
     test('should calculate kinetic energy correctly', () {

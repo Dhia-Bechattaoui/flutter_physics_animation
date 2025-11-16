@@ -14,7 +14,7 @@ class PhysicsContainer extends StatefulWidget {
 
   /// Builder function to create widgets for physics objects
   final Widget Function(BuildContext context, PhysicsObject object)
-      objectBuilder;
+  objectBuilder;
 
   /// Container decoration
   final BoxDecoration? decoration;
@@ -121,8 +121,8 @@ class _PhysicsContainerState extends State<PhysicsContainer> {
 
   Widget _buildDebugInfo() {
     return Positioned(
-      top: 8,
-      left: 8,
+      bottom: 8,
+      right: 8,
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -130,7 +130,7 @@ class _PhysicsContainerState extends State<PhysicsContainer> {
           borderRadius: BorderRadius.circular(4),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(

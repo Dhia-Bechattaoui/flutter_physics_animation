@@ -67,8 +67,12 @@ class SpringAnimation {
     final center = object.center;
     final dx = targetX - center[0];
     final dy = targetY - center[1];
-    final distance =
-        PhysicsUtils.distance(center[0], center[1], targetX, targetY);
+    final distance = PhysicsUtils.distance(
+      center[0],
+      center[1],
+      targetX,
+      targetY,
+    );
 
     if (distance > 0) {
       // Calculate spring force
@@ -110,7 +114,10 @@ class SpringAnimation {
 
   /// Creates a spring animation with multiple targets (chain effect).
   void addChainTarget(
-      double chainTargetX, double chainTargetY, double chainStiffness) {
+    double chainTargetX,
+    double chainTargetY,
+    double chainStiffness,
+  ) {
     // This would require managing multiple springs
     // For now, we'll just update the main target
     setTarget(chainTargetX, chainTargetY);
@@ -119,8 +126,12 @@ class SpringAnimation {
   /// Gets the current spring force magnitude.
   double get springForce {
     final center = object.center;
-    final distance =
-        PhysicsUtils.distance(center[0], center[1], targetX, targetY);
+    final distance = PhysicsUtils.distance(
+      center[0],
+      center[1],
+      targetX,
+      targetY,
+    );
     final displacement = distance - restLength;
     return stiffness * displacement.abs();
   }
@@ -128,8 +139,12 @@ class SpringAnimation {
   /// Gets the current displacement from rest length.
   double get displacement {
     final center = object.center;
-    final distance =
-        PhysicsUtils.distance(center[0], center[1], targetX, targetY);
+    final distance = PhysicsUtils.distance(
+      center[0],
+      center[1],
+      targetX,
+      targetY,
+    );
     return distance - restLength;
   }
 

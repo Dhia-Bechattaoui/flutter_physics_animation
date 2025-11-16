@@ -25,7 +25,7 @@
 /// final controller = PhysicsAnimationController(world: world);
 /// controller.addBouncingAnimation(object: ball, bounceHeight: 100.0);
 /// ```
-library flutter_physics_animation;
+library;
 
 // Core physics classes
 export 'src/physics_object.dart';
@@ -41,6 +41,9 @@ export 'src/animations/spring_animation.dart';
 export 'src/collision_detector.dart';
 export 'src/physics_constants.dart';
 export 'src/physics_utils.dart';
+export 'src/arrow_physics.dart';
+export 'src/hitbox_adapter.dart';
+export 'src/shape_type.dart';
 
 // Widgets
 export 'src/widgets/physics_animated_widget.dart';

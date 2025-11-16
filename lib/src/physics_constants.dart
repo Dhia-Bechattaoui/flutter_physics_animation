@@ -6,6 +6,9 @@ class PhysicsConstants {
   /// Default air resistance coefficient
   static const double defaultAirResistance = 0.02;
 
+  /// Default air density (ρ) in kg/m³ (at sea level, 15°C)
+  static const double defaultAirDensity = 1.225;
+
   /// Default friction coefficient
   static const double defaultFriction = 0.8;
 

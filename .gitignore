@@ -1,3 +1,23 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+build/
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+
 # Miscellaneous
 *.class
 *.log

@@ -64,15 +64,16 @@ class GravityAnimation {
       object.applyForce(0, gravity * object.mass);
     }
 
-    // Apply air resistance if enabled
+    // Apply air resistance if enabled (using proper formula)
     if (applyAirResistance) {
-      final airResistedVelocity = PhysicsUtils.applyAirResistance(
+      final airResistanceForce = PhysicsUtils.calculateAirResistanceForce(
         object.vx,
         object.vy,
-        object.airResistance,
+        object.airDensity,
+        object.dragCoefficient,
+        object.crossSectionalArea,
       );
-      object.vx = airResistedVelocity[0];
-      object.vy = airResistedVelocity[1];
+      object.applyForce(airResistanceForce[0], airResistanceForce[1]);
     }
 
     // Limit to terminal velocity
@@ -86,14 +87,21 @@ class GravityAnimation {
 
   /// Applies gravity toward a specific point (like a planet or black hole).
   void applyGravityTowardPoint(
-      double targetX, double targetY, double strength) {
+    double targetX,
+    double targetY,
+    double strength,
+  ) {
     if (!_isActive) return;
 
     final center = object.center;
     final dx = targetX - center[0];
     final dy = targetY - center[1];
-    final distance =
-        PhysicsUtils.distance(center[0], center[1], targetX, targetY);
+    final distance = PhysicsUtils.distance(
+      center[0],
+      center[1],
+      targetX,
+      targetY,
+    );
 
     if (distance > 0) {
       final normalized = PhysicsUtils.normalize(dx, dy);
@@ -105,12 +113,20 @@ class GravityAnimation {
 
   /// Creates a gravity well effect (stronger gravity near the center).
   void applyGravityWell(
-      double centerX, double centerY, double maxStrength, double radius) {
+    double centerX,
+    double centerY,
+    double maxStrength,
+    double radius,
+  ) {
     if (!_isActive) return;
 
     final center = object.center;
-    final distance =
-        PhysicsUtils.distance(center[0], center[1], centerX, centerY);
+    final distance = PhysicsUtils.distance(
+      center[0],
+      center[1],
+      centerX,
+      centerY,
+    );
 
     if (distance <= radius) {
       final strength = maxStrength * (1 - distance / radius);

@@ -116,14 +116,21 @@ void main() {
     });
 
     test('should update physics correctly', () {
-      final object =
-          PhysicsObject(x: 0, y: 0, vx: 10.0, vy: 10.0, airResistance: 0.0);
+      // Create object with zero air density to disable air resistance
+      final object = PhysicsObject(
+        x: 0,
+        y: 0,
+        vx: 10.0,
+        vy: 10.0,
+        airDensity: 0.0, // No air resistance
+        friction: 0.0, // No friction
+      );
       final initialX = object.x;
       final initialY = object.y;
 
       object.update(1.0); // 1 second time step
 
-      // Without air resistance, position should update correctly
+      // Without air resistance and friction, position should update correctly
       expect(object.x, closeTo(initialX + 10.0, 0.1));
       expect(object.y, closeTo(initialY + 10.0, 0.1));
     });

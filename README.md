@@ -5,6 +5,11 @@ A Flutter package providing physics-based animations with realistic bouncing, gr
 [![pub package](https://img.shields.io/pub/v/flutter_physics_animation.svg)](https://pub.dev/packages/flutter_physics_animation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<p align="center">
+  <img src="assets/no_gravity.gif" alt="No Gravity Demo" width="300" />
+  <img src="assets/gravity.gif" alt="Gravity Demo" width="300" />
+</p>
+
 ## Features
 
 - **Realistic Physics**: Accurate physics calculations with gravity, friction, and air resistance

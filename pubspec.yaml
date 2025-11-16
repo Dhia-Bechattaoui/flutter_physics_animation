@@ -1,23 +1,43 @@
 name: flutter_physics_animation
 description: A Flutter package providing physics-based animations with realistic bouncing, gravity, and collision detection.
-version: 0.0.1
+version: 0.1.0
 homepage: https://github.com/Dhia-Bechattaoui/flutter_physics_animation
 repository: https://github.com/Dhia-Bechattaoui/flutter_physics_animation
 issue_tracker: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/issues
+publish_to: https://pub.dev
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
-  flutter: ">=3.10.0"
+  sdk: '>=3.8.0 <4.0.0'
+  flutter: ">=3.32.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  flutter_hitbox: ^0.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   test: ^1.0.0
+
+topics:
+  - physics
+  - animation
+  - collision-detection
+  - flutter
+  - wasm
+
+funding:
+  - https://github.com/sponsors/Dhia-Bechattaoui
+
+platforms:
+  android:
+  ios:
+  web:
+  windows:
+  macos:
+  linux:
 
 flutter:
   # No assets needed for this package

@@ -2,10 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+
+### Changed
+
+### Fixed
+
+## [0.1.0] - 2025-11-16
+
+### Added
+- New example: single scene with one horizontal line (floor), one vertical line (wall), and a bouncing ball. Includes UI toggle for Real-World gravity, No Gravity, and Vacuum modes, plus reset button. Demonstrates elastic collisions and gravity effects.
+- Example: two-ball demo with gravity toggle (0/500), drag-to-throw, and on-screen stats.
+- Drag-to-throw interaction with clamped movement to world bounds.
+- Layout-driven world bounds (auto-detect right/bottom via LayoutBuilder).
+- Centralized logger (lib/src/log.dart) with physicsLog() and kPhysicsLoggingEnabled flag.
+- Circle hitbox support via HitboxAdapter (create/update circle hitboxes).
+- README: Added side-by-side GIFs (no_gravity.gif and gravity.gif).
+- Pubspec: topics and funding metadata.
+- CHANGELOG.md and standard .gitignore.
+
+### Changed
+- Updated changelog format reference to Keep a Changelog 1.1.0
+- Energy/debug overlay moved to bottom-right; controls overlay kept at top.
+- PhysicsAnimated/Container debug overlay positioning configurable in code.
+- Example UI refactored to overlay controls (no layout shrink of physics area).
+- Example app bar/labels updated for clarity.
+
+### Fixed
+- Circle vs circle collisions now use true circle hitboxes; eliminates early contact vs visuals.
+- Collision normal for circle–circle uses center-to-center vector; more accurate angled bounces.
+- Collision resolution always applies impulse on overlap (prevents “stuck resting” when hit).
+- Clearing resting state on collision toggle/drag ensures objects can move in zero gravity.
+- Energy logs: separated general update vs collision resolution; accounted for position-correction energy.
+- Removed verbose prints; routed through physicsLog (off by default) to keep console clean.
 
 ## [0.0.1] - 2024-01-01
 
@@ -47,3 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Performance guidelines
 - Best practices for physics animations
 - Troubleshooting guide
+
+<!-- Version references -->
+[Unreleased]: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/compare/v0.0.1...v0.1.0
+[0.0.1]: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/releases/tag/v0.0.1
