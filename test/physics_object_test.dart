@@ -136,8 +136,13 @@ void main() {
     });
 
     test('should not update when inactive', () {
-      final object =
-          PhysicsObject(x: 0, y: 0, vx: 10.0, vy: 10.0, isActive: false);
+      final object = PhysicsObject(
+        x: 0,
+        y: 0,
+        vx: 10.0,
+        vy: 10.0,
+        isActive: false,
+      );
       final initialX = object.x;
       final initialY = object.y;
 
@@ -197,8 +202,10 @@ void main() {
     test('should generate correct string representation', () {
       final object = PhysicsObject(x: 100, y: 200, vx: 10, vy: 20, mass: 1.5);
 
-      expect(object.toString(),
-          'PhysicsObject(x: 100.0, y: 200.0, vx: 10.0, vy: 20.0, mass: 1.5)');
+      expect(
+        object.toString(),
+        'PhysicsObject(x: 100.0, y: 200.0, vx: 10.0, vy: 20.0, mass: 1.5)',
+      );
     });
   });
 }

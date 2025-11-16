@@ -4,6 +4,7 @@ A Flutter package providing physics-based animations with realistic bouncing, gr
 
 [![pub package](https://img.shields.io/pub/v/flutter_physics_animation.svg)](https://pub.dev/packages/flutter_physics_animation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Pana](https://img.shields.io/badge/pana-160%2F160-brightgreen)](https://pub.dev/packages/flutter_physics_animation/score)
 
 <p align="center">
   <img src="assets/no_gravity.gif" alt="No Gravity Demo" width="300" />
@@ -27,8 +28,15 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_physics_animation: ^0.0.1
+  flutter_physics_animation: ^0.1.0
 ```
+
+> Supports Flutter ≥ 3.32.0 and Dart ≥ 3.8.0. Platforms: iOS, Android, Web, macOS, Windows, Linux (WASM-ready).
+
+### Sponsor
+
+If you find this package useful, consider supporting development:  
+[GitHub Sponsors](https://github.com/sponsors/Dhia-Bechattaoui)
 
 ## Quick Start
 

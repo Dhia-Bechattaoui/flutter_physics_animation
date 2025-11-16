@@ -47,11 +47,10 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
   void _setupPhysics() {
     // Create physics world with provisional bounds (updated from layout at build)
     world = PhysicsWorld(
-      gravity: gravityEnabled ? 500 : 0, // Toggle between 500 and 0
-      leftBound: 0,
-      rightBound: 400,
-      topBound: 0
-    );
+        gravity: gravityEnabled ? 500 : 0, // Toggle between 500 and 0
+        leftBound: 0,
+        rightBound: 400,
+        topBound: 0);
 
     // Create animation controller
     controller = PhysicsAnimationController(
@@ -167,9 +166,12 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
     double targetX = local.dx - radiusX;
     double targetY = local.dy - radiusY;
 
-    final RenderBox? box = _containerKey.currentContext?.findRenderObject() as RenderBox?;
-    final double worldLeft = (world.leftBound is double) ? (world.leftBound as double) : 0.0;
-    final double worldTop = (world.topBound is double) ? (world.topBound as double) : 0.0;
+    final RenderBox? box =
+        _containerKey.currentContext?.findRenderObject() as RenderBox?;
+    final double worldLeft =
+        (world.leftBound is double) ? (world.leftBound as double) : 0.0;
+    final double worldTop =
+        (world.topBound is double) ? (world.topBound as double) : 0.0;
     final double worldRight = (world.rightBound is double)
         ? (world.rightBound as double)
         : (box?.size.width ?? double.infinity);
@@ -281,7 +283,8 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
                   final double newRight = constraints.maxWidth;
                   final double newBottom = constraints.maxHeight;
                   if (newRight.isFinite && newBottom.isFinite) {
-                    if (world.rightBound != newRight || world.bottomBound != newBottom) {
+                    if (world.rightBound != newRight ||
+                        world.bottomBound != newBottom) {
                       world.leftBound = 0;
                       world.topBound = 0;
                       world.rightBound = newRight;
@@ -292,15 +295,19 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onPanStart: (details) {
-                    final RenderBox? box = _containerKey.currentContext?.findRenderObject() as RenderBox?;
+                    final RenderBox? box = _containerKey.currentContext
+                        ?.findRenderObject() as RenderBox?;
                     if (box == null) return;
-                    final Offset local = box.globalToLocal(details.globalPosition);
+                    final Offset local =
+                        box.globalToLocal(details.globalPosition);
                     _startDrag(local);
                   },
                   onPanUpdate: (details) {
-                    final RenderBox? box = _containerKey.currentContext?.findRenderObject() as RenderBox?;
+                    final RenderBox? box = _containerKey.currentContext
+                        ?.findRenderObject() as RenderBox?;
                     if (box == null) return;
-                    final Offset local = box.globalToLocal(details.globalPosition);
+                    final Offset local =
+                        box.globalToLocal(details.globalPosition);
                     _updateDrag(local);
                   },
                   onPanEnd: (details) {
@@ -394,7 +401,9 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                       title: Text('Gravity'),
-                      subtitle: Text(gravityEnabled ? '500 m/s²' : '0 m/s² (Zero Gravity)'),
+                      subtitle: Text(gravityEnabled
+                          ? '500 m/s²'
+                          : '0 m/s² (Zero Gravity)'),
                       value: gravityEnabled,
                       onChanged: _toggleGravity,
                     ),
@@ -402,20 +411,30 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
                     if (ball1 != null) ...[
                       Text(
                         'Ball 1 (Blue):',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue),
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue),
                       ),
-                      Text('  Pos: (${ball1!.x.toStringAsFixed(1)}, ${ball1!.y.toStringAsFixed(1)})'),
-                      Text('  Vel: (${ball1!.vx.toStringAsFixed(2)}, ${ball1!.vy.toStringAsFixed(2)}) m/s'),
+                      Text(
+                          '  Pos: (${ball1!.x.toStringAsFixed(1)}, ${ball1!.y.toStringAsFixed(1)})'),
+                      Text(
+                          '  Vel: (${ball1!.vx.toStringAsFixed(2)}, ${ball1!.vy.toStringAsFixed(2)}) m/s'),
                       Text('  Speed: ${ball1!.speed.toStringAsFixed(2)} m/s'),
                       SizedBox(height: 6),
                     ],
                     if (ball2 != null) ...[
                       Text(
                         'Ball 2 (Red):',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red),
                       ),
-                      Text('  Pos: (${ball2!.x.toStringAsFixed(1)}, ${ball2!.y.toStringAsFixed(1)})'),
-                      Text('  Vel: (${ball2!.vx.toStringAsFixed(2)}, ${ball2!.vy.toStringAsFixed(2)}) m/s'),
+                      Text(
+                          '  Pos: (${ball2!.x.toStringAsFixed(1)}, ${ball2!.y.toStringAsFixed(1)})'),
+                      Text(
+                          '  Vel: (${ball2!.vx.toStringAsFixed(2)}, ${ball2!.vy.toStringAsFixed(2)}) m/s'),
                       Text('  Speed: ${ball2!.speed.toStringAsFixed(2)} m/s'),
                     ],
                   ],

@@ -45,7 +45,8 @@ void main() {
       // Test with proper formula: F_d = ½ × ρ × v² × C_d × A
       // Using typical values: airDensity=1.225, dragCoefficient=0.47 (sphere), area=1.0
       final result = PhysicsUtils.calculateAirResistanceForce(
-        10.0, 0.0, // velocity
+        10.0,
+        0.0, // velocity
         1.225, // air density (kg/m³)
         0.47, // drag coefficient
         1.0, // cross-sectional area (m²)
@@ -56,7 +57,8 @@ void main() {
 
       // Test with zero velocity
       final result2 = PhysicsUtils.calculateAirResistanceForce(
-        0.0, 0.0,
+        0.0,
+        0.0,
         1.225,
         0.47,
         1.0,
@@ -78,10 +80,14 @@ void main() {
 
     test('should calculate potential energy correctly', () {
       expect(
-          PhysicsUtils.potentialEnergy(2.0, 10.0, 9.81), closeTo(196.2, 0.01));
+        PhysicsUtils.potentialEnergy(2.0, 10.0, 9.81),
+        closeTo(196.2, 0.01),
+      );
       expect(PhysicsUtils.potentialEnergy(1.0, 0.0, 9.81), 0.0);
       expect(
-          PhysicsUtils.potentialEnergy(1.0, -10.0, 9.81), closeTo(-98.1, 0.01));
+        PhysicsUtils.potentialEnergy(1.0, -10.0, 9.81),
+        closeTo(-98.1, 0.01),
+      );
     });
 
     test('should convert degrees to radians correctly', () {
@@ -122,15 +128,23 @@ void main() {
 
       // Non-overlapping rectangles
       expect(
-          PhysicsUtils.rectanglesOverlap(0, 0, 10, 10, 20, 20, 10, 10), false);
+        PhysicsUtils.rectanglesOverlap(0, 0, 10, 10, 20, 20, 10, 10),
+        false,
+      );
       expect(
-          PhysicsUtils.rectanglesOverlap(0, 0, 10, 10, 10, 0, 10, 10), false);
+        PhysicsUtils.rectanglesOverlap(0, 0, 10, 10, 10, 0, 10, 10),
+        false,
+      );
 
       // Touching rectangles
       expect(
-          PhysicsUtils.rectanglesOverlap(0, 0, 10, 10, 10, 0, 10, 10), false);
+        PhysicsUtils.rectanglesOverlap(0, 0, 10, 10, 10, 0, 10, 10),
+        false,
+      );
       expect(
-          PhysicsUtils.rectanglesOverlap(0, 0, 10, 10, 0, 10, 10, 10), false);
+        PhysicsUtils.rectanglesOverlap(0, 0, 10, 10, 0, 10, 10, 10),
+        false,
+      );
     });
 
     test('should detect point in rectangle correctly', () {
