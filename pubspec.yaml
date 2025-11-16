@@ -4,7 +4,7 @@ version: 0.1.0
 homepage: https://github.com/Dhia-Bechattaoui/flutter_physics_animation
 repository: https://github.com/Dhia-Bechattaoui/flutter_physics_animation
 issue_tracker: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/issues
-publish_to: https://pub.dev
+documentation: https://github.com/Dhia-Bechattaoui/flutter_physics_animation#readme
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
