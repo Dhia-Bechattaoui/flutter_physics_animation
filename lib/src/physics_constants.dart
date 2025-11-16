@@ -3,6 +3,9 @@ class PhysicsConstants {
   /// Default gravitational acceleration (9.81 m/s²)
   static const double defaultGravity = 9.81;
 
+  /// Earth mean radius in meters (for altitude-based gravity)
+  static const double earthRadiusMeters = 6371000.0;
+
   /// Default air resistance coefficient
   static const double defaultAirResistance = 0.02;
 

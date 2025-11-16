@@ -79,6 +79,18 @@ class PhysicsObject {
     }
   }
 
+  /// Marks the object as resting on a surface.
+  /// Sets very small velocities to zero to prevent jitter.
+  void markResting() {
+    _isResting = true;
+    if (speed < 0.5) {
+      vx = 0.0;
+      vy = 0.0;
+      angularVelocity = 0.0;
+    }
+    physicsLog('[PhysicsObject] Marked as resting');
+  }
+
   /// Rotation angle in radians (0 = pointing right, positive = counterclockwise)
   double angle;
 

@@ -17,6 +17,7 @@ A Flutter package providing physics-based animations with realistic bouncing, gr
 - **Collision Detection**: Automatic collision detection and resolution between objects
 - **Bouncing Animations**: Realistic bouncing effects with customizable elasticity
 - **Gravity Simulation**: Configurable gravitational fields and effects
+- **Altitude-based Gravity**: Optional inverse-square g(h) with configurable scale and planet radius
 - **Spring Physics**: Elastic spring animations with damping
 - **Flutter Integration**: Seamless integration with Flutter's widget system
 - **High Performance**: Optimized for smooth 60 FPS animations
@@ -28,7 +29,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_physics_animation: ^0.1.0
+  flutter_physics_animation: ^0.2.0
 ```
 
 > Supports Flutter ≥ 3.32.0 and Dart ≥ 3.8.0. Platforms: iOS, Android, Web, macOS, Windows, Linux (WASM-ready).
@@ -64,6 +65,12 @@ class _PhysicsExampleState extends State<PhysicsExample> {
       rightBound: 300,
       topBound: 0,
       bottomBound: 500,
+    );
+    
+    // Optional: enable altitude-based gravity (inverse-square g(h))
+    world.configureAltitudeBasedGravity(
+      enabled: true,
+      metersPerPixelOverride: 0.001, // 1 px = 1 mm
     );
     
     // Create animation controller
@@ -372,3 +379,34 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for a list of changes and version history.
+
+## Altitude-based Gravity
+
+Enable more realistic gravity that weakens with altitude using the inverse-square law:
+
+```dart
+world.configureAltitudeBasedGravity(
+  enabled: true,
+  metersPerPixelOverride: 0.001,      // control world scale
+  planetRadiusMetersOverride: 6371000 // optional, defaults to Earth mean radius
+);
+```
+
+Internally, the world uses:
+- g(h) = g0 · (R / (R + h))²
+- Potential energy and expected-speed helpers use the local g(h)
+
+Disable to revert to the constant gravity model:
+
+```dart
+world.configureAltitudeBasedGravity(enabled: false);
+```
+
+## Realistic Ground Resting
+
+Objects now settle on the ground instead of perpetually micro-bouncing:
+- Tiny post-collision velocities at the bottom boundary are snapped to rest.
+- Static friction damps small horizontal drift.
+- Objects are marked resting so gravity won’t re-accelerate them while in contact.
+
+If you need different behavior, tune elasticity and the settling thresholds in `PhysicsWorld` as needed.*** End Patch*** }```พ่]>

@@ -16,6 +16,16 @@ class PhysicsWorld {
   /// Gravitational acceleration for the world
   double gravity;
 
+  /// Whether to vary gravity with altitude (inverse-square, Earth-like)
+  bool altitudeBasedGravity = false;
+
+  /// World-to-meters scale: meters per one pixel in Y (and X) direction
+  /// Defaults to 0.001 m/px (1 px = 1 mm)
+  double metersPerPixel = 0.001;
+
+  /// Planetary radius used for altitude-based gravity (meters)
+  double planetRadiusMeters = PhysicsConstants.earthRadiusMeters;
+
   /// Whether the physics world is active
   bool isActive;
 
@@ -76,19 +86,26 @@ class PhysicsWorld {
     // Debug: Log update cycle
     physicsLog('[PhysicsWorld] === Update cycle (dt: $dt) ===');
 
+    // Cache ground level once per update for consistent calculations
+    final groundLevel = _getGroundLevel();
+
     // Update all objects
     for (final object in objects) {
       if (object.isActive) {
         // Apply gravity (F = mg, integrated over time: v += g * dt)
         // Skip gravity if object is resting on a surface (prevents velocity from increasing when at rest)
         if (object.affectedByGravity && !object.isResting) {
+          final gForObject = _getGravityForObjectAtCurrentHeight(
+            object,
+            groundLevel,
+          );
           final beforeGravityVy = object.vy;
-          object.applyForce(0, gravity * object.mass, dt: dt);
+          object.applyForce(0, gForObject * object.mass, dt: dt);
           final afterGravityVy = object.vy;
           if ((afterGravityVy - beforeGravityVy).abs() > 0.001) {
             physicsLog('[PhysicsWorld] Gravity applied:');
             physicsLog(
-              '  Force: (0, ${(gravity * object.mass).toStringAsFixed(2)})',
+              '  Force: (0, ${(gForObject * object.mass).toStringAsFixed(2)})',
             );
             physicsLog(
               '  Vy: ${beforeGravityVy.toStringAsFixed(3)} -> ${afterGravityVy.toStringAsFixed(3)}',
@@ -132,19 +149,23 @@ class PhysicsWorld {
 
         // Calculate energy before update (for energy conservation tracking)
         final peBefore = object.affectedByGravity
-            ? getPotentialEnergy(object)
+            ? getPotentialEnergy(object, cachedGroundLevel: groundLevel)
             : 0.0;
         final keBefore = object.kineticEnergy;
         final totalEnergyBefore = peBefore + keBefore;
 
-        object.update(dt, gravity: gravity, skipAirResistance: hasWind);
+        final gForUpdate = _getGravityForObjectAtCurrentHeight(
+          object,
+          groundLevel,
+        );
+        object.update(dt, gravity: gForUpdate, skipAirResistance: hasWind);
 
         final afterUpdatePos = [object.x, object.y];
         final afterUpdateVel = [object.vx, object.vy];
 
         // Calculate energy after update
         final peAfter = object.affectedByGravity
-            ? getPotentialEnergy(object)
+            ? getPotentialEnergy(object, cachedGroundLevel: groundLevel)
             : 0.0;
         final keAfter = object.kineticEnergy;
         final totalEnergyAfter = peAfter + keAfter;
@@ -162,7 +183,10 @@ class PhysicsWorld {
                 ? (_getGroundLevel() - (object.y + object.height))
                 : 0.0;
 
-            final expectedSpeed = getExpectedSpeedFromHeight(object);
+            final expectedSpeed = getExpectedSpeedFromHeight(
+              object,
+              cachedGroundLevel: groundLevel,
+            );
 
             // Determine if object is falling or rising
             final isFalling =
@@ -288,11 +312,12 @@ class PhysicsWorld {
       final after = afterCollisionPositions[i];
       final obj = objects[i];
       if (obj.affectedByGravity) {
-        final groundLevel = _getGroundLevel();
         final heightBefore = groundLevel - (before[1] + obj.height);
         final heightAfter = groundLevel - (after[1] + obj.height);
-        final peBefore = gravity * obj.mass * heightBefore;
-        final peAfter = gravity * obj.mass * heightAfter;
+        final gBefore = _getGravityForHeightPixels(heightBefore);
+        final gAfter = _getGravityForHeightPixels(heightAfter);
+        final peBefore = gBefore * obj.mass * heightBefore;
+        final peAfter = gAfter * obj.mass * heightAfter;
         positionCorrectionEnergy += (peAfter - peBefore);
       }
     }
@@ -415,6 +440,28 @@ class PhysicsWorld {
       );
       object.y = bottomBound! - object.height;
       object.vy = -object.vy * object.elasticity;
+      // Realistic rest snap: if near ground with tiny velocity, settle to rest
+      final double verticalSpeed = object.vy.abs();
+      final double horizontalSpeed = object.vx.abs();
+      const double settleVyThreshold = 3.0; // m/s
+      const double settleVxThreshold = 1.0; // m/s
+      if (verticalSpeed < settleVyThreshold) {
+        // Apply static friction to horizontal motion when settling
+        if (horizontalSpeed < settleVxThreshold) {
+          object.vx = 0.0;
+        } else {
+          object.vx *= 0.9;
+        }
+        object.vy = 0.0;
+        // Mark as resting so gravity won't keep accelerating while on ground
+        object.markResting();
+      } else if (object.elasticity < 0.05 &&
+          verticalSpeed < (settleVyThreshold * 1.5)) {
+        // Very inelastic bounce: settle quickly
+        object.vx *= 0.9;
+        object.vy = 0.0;
+        object.markResting();
+      }
       physicsLog(
         '  After: pos=(${object.x}, ${object.y}), vel=(${object.vx}, ${object.vy})',
       );
@@ -499,8 +546,9 @@ class PhysicsWorld {
         // When object is resting on ground, its bottom = groundLevel, so height = 0
         final objectBottom = obj.y + obj.height;
         final heightAboveGround = groundLevel - objectBottom;
-        // PE = mgh, where h is height above ground
-        return sum + (gravity * obj.mass * heightAboveGround);
+        // PE ≈ m g(h) h, where h is height above ground and g varies with altitude
+        final gAtHeight = _getGravityForHeightPixels(heightAboveGround);
+        return sum + (gAtHeight * obj.mass * heightAboveGround);
       }
       return sum;
     });
@@ -513,26 +561,30 @@ class PhysicsWorld {
 
   /// Calculates potential energy for a single object.
   /// Uses ground level as reference point (PE = 0 when object is on ground).
-  double getPotentialEnergy(PhysicsObject obj) {
+  double getPotentialEnergy(PhysicsObject obj, {double? cachedGroundLevel}) {
     if (!obj.affectedByGravity) return 0.0;
-    final groundLevel = _getGroundLevel();
+    final groundLevel = cachedGroundLevel ?? _getGroundLevel();
     final objectBottom = obj.y + obj.height;
     final heightAboveGround = groundLevel - objectBottom;
-    // PE = mgh, where h is height above ground
-    return gravity * obj.mass * heightAboveGround;
+    final gAtHeight = _getGravityForHeightPixels(heightAboveGround);
+    return gAtHeight * obj.mass * heightAboveGround;
   }
 
   /// Calculates expected speed from energy conservation (ignoring air resistance).
   /// Formula: v = √(2gh) where h is height above ground.
   /// This shows the theoretical speed if all PE converts to KE.
-  double getExpectedSpeedFromHeight(PhysicsObject obj) {
+  double getExpectedSpeedFromHeight(
+    PhysicsObject obj, {
+    double? cachedGroundLevel,
+  }) {
     if (!obj.affectedByGravity) return 0.0;
-    final groundLevel = _getGroundLevel();
+    final groundLevel = cachedGroundLevel ?? _getGroundLevel();
     final objectBottom = obj.y + obj.height;
     final heightAboveGround = groundLevel - objectBottom;
     if (heightAboveGround <= 0) return 0.0;
-    // From energy conservation: mgh = ½mv² → v = √(2gh)
-    return math.sqrt(2 * gravity * heightAboveGround);
+    // From energy conservation: mgh ≈ ½mv² using local g(h)
+    final gAtHeight = _getGravityForHeightPixels(heightAboveGround);
+    return math.sqrt(2 * gAtHeight * heightAboveGround);
   }
 
   /// Pauses all physics in the world.
@@ -594,6 +646,21 @@ class PhysicsWorld {
     windEnabled = enabled;
   }
 
+  /// Enables/disables altitude-based gravity and optionally updates scale/planet.
+  void configureAltitudeBasedGravity({
+    required bool enabled,
+    double? metersPerPixelOverride,
+    double? planetRadiusMetersOverride,
+  }) {
+    altitudeBasedGravity = enabled;
+    if (metersPerPixelOverride != null) {
+      metersPerPixel = metersPerPixelOverride;
+    }
+    if (planetRadiusMetersOverride != null) {
+      planetRadiusMeters = planetRadiusMetersOverride;
+    }
+  }
+
   /// Gets the center of mass of all objects.
   List<double> get centerOfMass {
     double totalMass = 0;
@@ -613,5 +680,23 @@ class PhysicsWorld {
       return [weightedX / totalMass, weightedY / totalMass];
     }
     return [0, 0];
+  }
+
+  /// Computes gravity at a given height above ground in pixels.
+  double _getGravityForHeightPixels(double heightPixels) {
+    if (!altitudeBasedGravity) return gravity;
+    final heightMeters = math.max(0.0, heightPixels) * metersPerPixel;
+    final R = planetRadiusMeters;
+    final g = gravity * (R * R) / ((R + heightMeters) * (R + heightMeters));
+    return g;
+  }
+
+  /// Computes gravity for the object's current altitude above ground.
+  double _getGravityForObjectAtCurrentHeight(
+    PhysicsObject obj,
+    double groundLevel,
+  ) {
+    final heightAboveGround = groundLevel - (obj.y + obj.height);
+    return _getGravityForHeightPixels(heightAboveGround);
   }
 }

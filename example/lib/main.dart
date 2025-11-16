@@ -33,6 +33,7 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
   PhysicsObject? ball1;
   PhysicsObject? ball2;
   bool gravityEnabled = true;
+  bool altitudeGravityEnabled = false;
   final GlobalKey _containerKey = GlobalKey();
   PhysicsObject? _dragging;
   final List<Offset> _recentPositions = <Offset>[];
@@ -51,6 +52,11 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
         leftBound: 0,
         rightBound: 400,
         topBound: 0);
+    // Configure altitude-based gravity (disabled by default)
+    world.configureAltitudeBasedGravity(
+      enabled: altitudeGravityEnabled,
+      metersPerPixelOverride: 0.001, // 1 px = 1 mm
+    );
 
     // Create animation controller
     controller = PhysicsAnimationController(
@@ -131,6 +137,16 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
           ball2!.clearRestingState();
         }
       }
+    });
+  }
+
+  void _toggleAltitudeGravity(bool value) {
+    setState(() {
+      altitudeGravityEnabled = value;
+      world.configureAltitudeBasedGravity(
+        enabled: altitudeGravityEnabled,
+        metersPerPixelOverride: 0.001,
+      );
     });
   }
 
@@ -406,6 +422,16 @@ class SimplePhysicsScreenState extends State<SimplePhysicsScreen> {
                           : '0 m/s² (Zero Gravity)'),
                       value: gravityEnabled,
                       onChanged: _toggleGravity,
+                    ),
+                    SwitchListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      title: Text('Altitude-based g'),
+                      subtitle: Text(altitudeGravityEnabled
+                          ? 'Inverse-square g(h) enabled'
+                          : 'Constant g'),
+                      value: altitudeGravityEnabled,
+                      onChanged: _toggleAltitudeGravity,
                     ),
                     Divider(height: 8),
                     if (ball1 != null) ...[

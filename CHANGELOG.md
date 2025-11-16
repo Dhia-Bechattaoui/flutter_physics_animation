@@ -8,10 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+ 
 
 ### Changed
+ 
 
 ### Fixed
+## [0.2.0] - 2025-11-16
+
+### Added
+- Altitude-based gravity option in `PhysicsWorld` using inverse-square law:
+  - Toggle via `configureAltitudeBasedGravity(enabled: true, ...)`
+  - Configurable `metersPerPixel` scale and `planetRadiusMeters`
+- `PhysicsConstants.earthRadiusMeters` for Earth-like setups
+- `PhysicsObject.markResting()` API to explicitly mark objects as resting and zero tiny velocities
+
+### Changed
+- Gravity application now uses local g(h) when enabled
+- Potential energy and expected speed helpers account for altitude-based gravity
+- Bottom boundary handling now includes realistic “rest snap” to settle objects on ground (stops micro-bounces, sets vy=0, applies static friction, marks resting)
+
 
 ## [0.1.0] - 2025-11-16
 
@@ -83,6 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Troubleshooting guide
 
 <!-- Version references -->
-[Unreleased]: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/Dhia-Bechattaoui/flutter_physics_animation/releases/tag/v0.0.1
